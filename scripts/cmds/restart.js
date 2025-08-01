@@ -11,7 +11,7 @@ module.exports = {
 			vi: "Khởi động lại bot",
 			en: "Restart bot"
 		},
-		category: "owner",
+		category: "Owner",
 		guide: {
 			vi: "   {pn}: Khởi động lại bot",
 			en: "   {pn}: Restart bot"
@@ -37,11 +37,6 @@ module.exports = {
 	},
 
 	onStart: async function ({ message, event, getLang }) {
-		const permission = global.GoatBot.config.owner;
-  if (!permission.includes(event.senderID)) {
-    api.sendMessage("Sucks 🥲🫶", event.threadID, event.messageID);
-    return;
-  }
 		const pathFile = `${__dirname}/tmp/restart.txt`;
 		fs.writeFileSync(pathFile, `${event.threadID} ${Date.now()}`);
 		await message.reply(getLang("restartting"));

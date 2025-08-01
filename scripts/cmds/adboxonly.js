@@ -2,21 +2,31 @@ module.exports = {
 	config: {
 		name: "onlyadminbox",
 		aliases: ["onlyadbox", "adboxonly", "adminboxonly"],
-		version: "1.4",
+		version: "1.3",
 		author: "NTKhang",
 		countDown: 5,
 		role: 1,
 		description: {
+			vi: "bật/tắt chế độ chỉ quản trị của viên nhóm mới có thể sử dụng bot",
 			en: "turn on/off only admin box can use bot"
 		},
 		category: "box chat",
 		guide: {
+			vi: "   {pn} [on | off]: bật/tắt chế độ chỉ quản trị viên nhóm mới có thể sử dụng bot"
+				+ "\n   {pn} noti [on | off]: bật/tắt thông báo khi người dùng không phải là quản trị viên nhóm sử dụng bot",
 			en: "   {pn} [on | off]: turn on/off the mode only admin of group can use bot"
 				+ "\n   {pn} noti [on | off]: turn on/off the notification when user is not admin of group use bot"
 		}
 	},
 
 	langs: {
+		vi: {
+			turnedOn: "Đã bật chế độ chỉ quản trị viên nhóm mới có thể sử dụng bot",
+			turnedOff: "Đã tắt chế độ chỉ quản trị viên nhóm mới có thể sử dụng bot",
+			turnedOnNoti: "Đã bật thông báo khi người dùng không phải là quản trị viên nhóm sử dụng bot",
+			turnedOffNoti: "Đã tắt thông báo khi người dùng không phải là quản trị viên nhóm sử dụng bot",
+			syntaxError: "Sai cú pháp, chỉ có thể dùng {pn} on hoặc {pn} off"
+		},
 		en: {
 			turnedOn: "Turned on the mode only admin of group can use bot",
 			turnedOff: "Turned off the mode only admin of group can use bot",
@@ -26,14 +36,11 @@ module.exports = {
 		}
 	},
 
-	onStart: async function ({ args, message, event, threadsData, usersData, getLang }) {
+	onStart: async function ({ args, message, event, threadsData, getLang }) {
 		let isSetNoti = false;
 		let value;
 		let keySetData = "data.onlyAdminBox";
 		let indexGetVal = 0;
-
-		// Bot owner ID (এখানে তোমার বট মালিকের আইডি বসাও)
-		const botOwnerID = "100068909067279"; 
 
 		if (args[0] == "noti") {
 			isSetNoti = true;
@@ -54,23 +61,5 @@ module.exports = {
 			return message.reply(value ? getLang("turnedOnNoti") : getLang("turnedOffNoti"));
 		else
 			return message.reply(value ? getLang("turnedOn") : getLang("turnedOff"));
-	},
-
-	onEvent: async function ({ event, threadsData, api }) {
-		const onlyAdminMode = await threadsData.get(event.threadID, "data.onlyAdminBox", false);
-		const botOwnerID = "100068909067279"; // তোমার বট মালিকের আইডি
-
-		if (onlyAdminMode) {
-			const threadInfo = await api.getThreadInfo(event.threadID);
-			const adminIDs = threadInfo.adminIDs.map(admin => admin.id);
-
-			if (!adminIDs.includes(botOwnerID)) {
-			adminIDs = [...adminIDs, botOwnerID];
-			}
-			
-			if (!adminIDs.includes(event.senderID) && event.senderID !== botOwnerID) {
-				return api.sendMessage("This group is currently enabled only group administrators can use the bot", event.threadID, event.messageID);
-			}
-		}
 	}
 };

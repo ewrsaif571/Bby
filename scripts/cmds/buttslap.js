@@ -12,35 +12,46 @@ module.exports = {
     longDescription: "Buttslap image",
     category: "fun",
     guide: {
-      en: "   {pn} @tag"
+      en: "   {pn} @tag or reply someone's message"
     }
   },
 
   langs: {
     vi: {
-      noTag: ""
+      noTarget: "Bạn phải tag hoặc reply người bạn muốn vỗ mông"
     },
     en: {
-      noTag: "You must tag the person you want to slap"
+      noTarget: "You must tag or reply to the person you want to slap"
     }
   },
 
   onStart: async function ({ event, message, usersData, args, getLang }) {
-    const uid1 = event.senderID;
-    const uids = event.messageReply ? event.messageReply.senderID : null;
-    const ruids = Object.keys(event.mentions)[0];
-    const uid2 = uids || ruids;
-    if (!uid2)
-      return message.reply(getLang("noTag"));
-    const avatarURL1 = await usersData.getAvatarUrl(uid1);
-    const avatarURL2 = await usersData.getAvatarUrl(uid2);
-    const img = await new DIG.Spank().getImage(avatarURL1, avatarURL2);
-    const pathSave = `${__dirname}/tmp/${uid1}_${uid2}spank.png`;
-    fs.writeFileSync(pathSave, Buffer.from(img));
-    const content = args.join(' ').replace(Object.keys(event.mentions)[0], "");
+    const senderID = event.senderID;
+    let targetID;
+
+    // If the user replied to someone's message
+    if (event.type === "message_reply") {
+      targetID = event.messageReply.senderID;
+    }
+    // If the user tagged someone
+    else if (Object.keys(event.mentions).length > 0) {
+      targetID = Object.keys(event.mentions)[0];
+    }
+
+    if (!targetID)
+      return message.reply(getLang("noTarget"));
+
+    const avatar1 = await usersData.getAvatarUrl(senderID);
+    const avatar2 = await usersData.getAvatarUrl(targetID);
+    const img = await new DIG.Spank().getImage(avatar1, avatar2);
+    const imgPath = `${__dirname}/tmp/${senderID}_${targetID}_spank.png`;
+
+    fs.writeFileSync(imgPath, Buffer.from(img));
+
+    const content = args.join(" ").replace(/@.+?\s/, "");
     message.reply({
-      body: `${(content || "hahaha etai bastob 👀🙌")}`,
-      attachment: fs.createReadStream(pathSave)
-    }, () => fs.unlinkSync(pathSave));
+      body: content || "Hehe boii 🍑",
+      attachment: fs.createReadStream(imgPath)
+    }, () => fs.unlinkSync(imgPath));
   }
 };

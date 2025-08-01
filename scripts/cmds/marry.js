@@ -13,7 +13,7 @@ module.exports = {
         role: 0,
         shortDescription: "get a wife",
         longDescription: "mention your love❗",
-        category: "fun",
+        category: "love",
         guide: "{pn}"
     },
 
@@ -47,4 +47,4 @@ async function bal(one, two) {//credit akash #_#
 
     await img.writeAsync(pth)
     return pth
-                                                        }
+}

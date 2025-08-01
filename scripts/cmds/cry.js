@@ -10,7 +10,7 @@ module.exports = {
     role: 0,
     shortDescription: "",
     longDescription: "",
-    category: "fun",
+    category: "meme",
     guide: "{pn}",
     envConfig: {
       deltaNext: 5
@@ -49,7 +49,7 @@ let url = await usersData.getAvatarUrl(uid)
 let avt = await new DIG.Mikkelsen().getImage(url)
 
 
- 
+
       const pathSave = `${__dirname}/tmp/cry.png`;
   fs.writeFileSync(pathSave, Buffer.from(avt));
     let body = "this person always makes me cry"

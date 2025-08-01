@@ -18,12 +18,23 @@ module.exports = {
   },
 
   onStart: async function ({ event, message, usersData }) {
- const uid = Object.keys(event.mentions)[0]
- if(!uid) return message.reply("please mention someone")
+    const mentionID = Object.keys(event.mentions)[0];
+    const replyID = event.messageReply?.senderID;
+
+    let uid;
+    if (mentionID) {
+      uid = mentionID;
+    } else if (replyID) {
+      uid = replyID;
+    } else {
+      return message.reply("please mention someone or reply to their message");
+    }
+
     const avatarURL = await usersData.getAvatarUrl(uid);
     const img = await new DIG.Rip().getImage(avatarURL);
- const pathSave = `${__dirname}/tmp/${uid}_Rip.png`;
+    const pathSave = `${__dirname}/tmp/${uid}_Rip.png`;
     fs.writeFileSync(pathSave, Buffer.from(img));
+
     message.reply({
       attachment: fs.createReadStream(pathSave)
     }, () => fs.unlinkSync(pathSave));

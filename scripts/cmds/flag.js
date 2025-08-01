@@ -1,125 +1,101 @@
 const axios = require("axios");
 
+const baseApiUrl = async () => {
+  const base = await axios.get("https://raw.githubusercontent.com/mahmudx7/exe/main/baseApiUrl.json");
+  return base.data.mahmud;
+};
+
 module.exports = {
   config: {
-    name: "flag",
-    aliases: ["flagGame"],
-    version: "3.0",
-    author: "Dipto",
-    countDown: 0,
+    name: "flaggame",
+    aliases:["flag"],
+    version: "1.7",
+    author: "MahMUD",
+    countDown: 10,
     role: 0,
-    description: {
-      en: "Guess the flag name",
-    },
     category: "game",
     guide: {
-      en: "{pn}",
-    },
-  },
-  onReply: async function ({ api, event, Reply, usersData , threadsData }) {
-    const { country, attempts } = Reply;
-    const maxAttempts = 5;
-    if (event.type == "message_reply") {
-      const reply = event.body.toLowerCase();
-      const getCoin = 2 * 120.5;
-      const getExp = 1 * 121;
-      const userData = await usersData.get(event.senderID);
-      if (attempts >= maxAttempts) {
-        await api.sendMessage(
-          "🚫 | You have reached the maximum number of attempts (5).",
-          event.threadID,
-          event.messageID,
-        );
-        return;
-      }
-      if (isNaN(reply)) {
-        if (reply == country.toLowerCase()) {
-          try {
-            await api.unsendMessage(Reply.messageID);
-            await usersData.set(event.senderID, {
-              money: userData.money + getCoin,
-              exp: userData.exp + getExp,
-              data: userData.data,
-            });
-            const grp = await threadsData.get(event.threadID);
-            const userID = event.senderID;
-            if (!grp.data.flagWins) {
-              grp.data.flagWins = {};
-            }
-            if (!grp.data.flagWins[userID]) {
-              grp.data.flagWins[userID] = 0;
-            }
-            grp.data.flagWins[userID] += 1;
-            await threadsData.set(event.threadID, grp);
-          } catch (err) {
-            console.log("Error: ", err.message);
-          } finally {
-            const message = `✅ | Correct answer!\nYou have earned ${getCoin} coins and ${getExp} exp.`;
-            await api.sendMessage(message, event.threadID, event.messageID);
-          }
-        } else {
-          Reply.attempts += 1;
-          global.GoatBot.onReply.set(Reply.messageID, Reply);
-          api.sendMessage(
-            `❌ | Wrong Answer.You have ${maxAttempts - Reply.attempts} attempts left.\n✅ | Try Again baby!`,
-            event.threadID,
-            event.messageID,
-          );
-        }
-      }
+      en: "{pn}"
     }
   },
 
-  onStart: async function ({ api, args, event,threadsData }) {
-    try {
-        const hasan = "https://hasan-all-apis.onrender.com";
-      if (!args[0]) {
-        const response = await axios.get(`${hasan}/flag`);
-        const { flag, country } = response.data;
-        await api.sendMessage(
-          {
-            body: "Guess this flag name.🏌️😷",
-            attachment: await global.utils.getStreamFromURL(flag),
-          },
-          event.threadID,
-          (error, info) => {
-            global.GoatBot.onReply.set(info.messageID, {
-              commandName: this.config.name,
-              type: "reply",
-              messageID: info.messageID,
-              author: event.senderID,
-              flag,
-              country,
-              attempts: 0,
-            });
-          },
-          event.messageID,
-        );
-      }else if (args[0] === "list") {
-        const threadData = await threadsData.get(event.threadID);
-        const { data } = threadData;
-        const flagWins = data.flagWins || {};
+  onReply: async function ({ api, event, Reply, usersData }) {
+    const { flag, author } = Reply;
+    const getCoin = 500;
+    const getExp = 121;
+    const userData = await usersData.get(event.senderID);
 
-        const flagStatsArray = Object.entries(flagWins);
-        flagStatsArray.sort((a, b) => b[1] - a[1]);
+    if (event.senderID !== author) {
+      return api.sendMessage("𝐓𝐡𝐢𝐬 𝐢𝐬 𝐧𝐨𝐭 𝐲𝐨𝐮𝐫 𝐟𝐥𝐚𝐠 𝐛𝐚𝐛𝐲 >🐸", event.threadID, event.messageID);
+    }
 
-        let message = "Flag Game Rankings:\n\n";
-        let i = 0;
-        for (const [userID, winCount] of flagStatsArray) {
-          const userName = await usersData.getName(userID);
-          message += `${i + 1}. ${userName}: ${winCount} wins\n`;
-          i++;
-        }
+    const reply = event.body.toLowerCase();
+    await api.unsendMessage(Reply.messageID);
 
-        return api.sendMessage(message, event.threadID, event.messageID);
-      }
-    } catch (error) {
-      console.error(`Error: ${error.message}`);
+    if (reply === flag.toLowerCase()) {
+      userData.money += getCoin;
+      userData.exp += getExp;
+      await usersData.set(event.senderID, userData);
+
       api.sendMessage(
-        `Error: ${error.message}`,
+        `🎉 | Correct answe baby.\nYou have earned ${getCoin} coins and ${getExp} exp.`,
         event.threadID,
-        event.messageID,
+        event.messageID
+      );
+    } else {
+      api.sendMessage(
+        `🥺 | Wrong Answer baby\nCorrect answer was: ${flag}`,
+        event.threadID,
+        event.messageID
       );
     }
   },
+
+  onStart: async function ({ api, event }) {
+    try {
+      const apiUrl = await baseApiUrl();
+      const response = await axios.get(`${apiUrl}/api/flag`, {
+        responseType: "json",
+        headers: {
+          'User-Agent': 'Mozilla/5.0'
+        }
+      });
+
+      const { link, country } = response.data;
+
+      const imageStream = await axios({
+        method: "GET",
+        url: link,
+        responseType: "stream",
+        headers: {
+          'User-Agent': 'Mozilla/5.0'
+        }
+      });
+
+      api.sendMessage(
+        {
+          body: "🌍 A random flag has appeared! Guess the flag name.",
+          attachment: imageStream.data
+        },
+        event.threadID,
+        (error, info) => {
+          global.GoatBot.onReply.set(info.messageID, {
+            commandName: this.config.name,
+            type: "reply",
+            messageID: info.messageID,
+            author: event.senderID,
+            flag: country
+          });
+
+          setTimeout(() => {
+            api.unsendMessage(info.messageID);
+          }, 40000);
+        },
+        event.messageID
+      );
+    } catch (error) {
+      console.error(`Error: ${error.message}`);
+      api.sendMessage(`Error fetching flag: ${error.message}`, event.threadID, event.messageID);
+    }
+  }
 };

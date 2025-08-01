@@ -6,35 +6,30 @@ module.exports = {
         name: "admin",
         aliases: ["ad"],
         version: "1.0",
-        author: "♡︎ 𝐻𝐴𝑆𝐴𝑁 ♡︎",
+        author: "︎Hatan 🥰",
         countDown: 5,
         role: 0,
-        shortDescription: {
-			en: "Add, remove or see the admin list for this bot"
-		},
-        longDescription: {
-			en: "Add, remove or see the admin list for this bot"
-		},
+        shortDescription: "Add, remove or see the admin list for this bot",
+        longDescription: "Add, remove or see the admin list for this bot",
         category: "admin",
-        guide: {
-            en: "   {pn} [list | -l]: Show admin list (everyone can use)\n" +
+        guide:  "   {pn} [list | -l]: Show admin list (everyone can use)\n" +
                 "   {pn} [add | -a] <uid | @tag>: Add admin role for a user (admins only)\n" +
                 "   {pn} [remove | -r] <uid | @tag>: Remove admin role from a user (admins only)\n" +
                 "   {pn} [add | -a, remove | -r] (reply): Add/remove admin role for the user you replied to (admins only)"
-        }
+
     },
 
     langs: {
         en: {
-            listAdmin: "🎭 𝗢𝗪𝗡𝗘𝗥 𝑎𝑛𝑑 𝗔𝗗𝗠𝗜𝗡 🎭"
-                + "\n ♦___________________♦"
-                + "\n ♕︎ 𝑶𝑾𝑵𝑬𝑹 ♕︎: ✨ 𝐻𝐴𝑆𝐴𝑁 ✨"
+            listAdmin: "𝗟𝗜𝗦𝗧 𝗢𝗙 𝗔𝗗𝗠𝗜𝗡 ♡︎"
+                + "\n ___________________"
+                + "\n ╭‣ 𝐀𝐝𝐦𝐢𝐧 👑"
+                + "\n ╰‣ 𝐒𝐀 𝐈𝐅"
                 + "\n _____________________________"
-                + "\n _____♔︎ 𝑨𝑫𝑴𝑰𝑵'𝑺 ♔︎_____"
+                + "\n 𝗢𝗣𝗘𝗥𝗔𝗧𝗢𝗥'𝗦"
                 + "\n %1"
                 + "\n _____________________________"
-                + "\n ♔︎ 𝑂𝑊𝑁𝐸𝑅 ♔︎:https://www.facebook.com/Itz.HaSaN.00"
-                + "\n |__𝐻𝐴𝑆𝐴𝑁'𝑆_𝐵𝑂𝑇__|",
+                + "\n ",
             noAdmin: "⚠️ | No admins found!",
             added: "✅ | Added admin role for %1 users:\n%2",
             alreadyAdmin: "\n⚠️ | %1 users already have admin role:\n%2",
@@ -52,7 +47,7 @@ module.exports = {
         switch (args[0]) {
             case "list":
             case "-l": {
-                
+
                 if (config.adminBot.length === 0) {
                     return message.reply(getLang("noAdmin"));
                 }
@@ -64,7 +59,7 @@ module.exports = {
             case "-a":
             case "remove":
             case "-r": {
-                
+
                 if (!config.adminBot.includes(senderID)) {
                     return message.reply(getLang("notAllowed"));
                 }
@@ -73,7 +68,7 @@ module.exports = {
             if (args[0] === "add" || args[0] === "-a") {
                 let uids = [];
 
-               
+
                 if (Object.keys(event.mentions).length > 0) {
                     uids = Object.keys(event.mentions);
                 } else if (event.type === "message_reply") {
@@ -114,7 +109,7 @@ module.exports = {
             if (args[0] === "remove" || args[0] === "-r") {
                 let uids = [];
 
-               
+
                 if (Object.keys(event.mentions).length > 0) {
                     uids = Object.keys(event.mentions);
                 } else if (event.type === "message_reply") {

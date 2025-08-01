@@ -1,0 +1,105 @@
+const https = require("https");
+const fs = require("fs-extra");
+const path = require("path");
+const moment = require("moment");
+
+const ownerInfo = {
+  name: "𝐒'𝐚!𝐅 𝐈𝐬𝐥'𝐚𝐦",
+  age: "𝟏𝟔",
+  birthday: "𝟐𝟎𝟎𝟗 - 𝟎𝟓 - 𝟎𝟏",
+  height: "𝟓 - 𝟓",
+  location: "𝐒𝐢𝐫𝐚𝐣𝐠𝐚𝐧𝐣",
+  class: "𝟗",
+  hobby: "𝐏𝐨𝐨𝐫 𝐤𝐢𝐝 >⁠.⁠<",
+  relationship: "𝐒𝐢𝐧𝐠𝐥𝐞",
+  dream: "𝐍𝐨𝐭𝐡𝐢𝐧𝐠",
+  favAnime: "𝐀𝐭𝐭𝐚𝐜𝐤 𝐨𝐧 𝐭𝐢𝐭𝐚𝐧",
+  gender: "𝐁𝐨𝐲",
+  facebook: "https://www.facebook.com/saif.islam404",
+  botname: "𝐌'𝐢𝐤𝐚𝐒'𝐚"
+};
+
+const mediaLinks = [
+  "https://i.imgur.com/qoHWIOD.mp4",
+  "https://i.imgur.com/uTdA4LU.mp4",
+  "https://i.imgur.com/2fRehnn.mp4",
+  "https://i.imgur.com/mSphvOL.mp4",
+  "https://i.imgur.com/P4W63mi.mp4",
+  "https://i.imgur.com/v6BFWAj.mp4",
+  "https://i.imgur.com/s6bV3eI.mp4"
+];
+
+module.exports = {
+  config: {
+    name: "owner",
+    aliases: ["owner"],
+    version: "1.2",
+    author: "Sa!F 🪶",
+    role: 0,
+    shortDescription: "Show owner info",
+    category: "info",
+    guide: { en: "{pn}" }
+  },
+
+  onStart: async function ({ message }) {
+    const start = Date.now();
+
+    try {
+      const uptime = process.uptime();
+      const duration = moment.duration(uptime, "seconds");
+      const uptimeText = `${duration.hours()}h ${duration.minutes()}m ${duration.seconds()}s`;
+
+      const randomIndex = Math.floor(Math.random() * mediaLinks.length);
+      const videoUrl = mediaLinks[randomIndex];
+      const ext = path.extname(videoUrl).split("?")[0] || ".mp4";
+      const cachePath = path.join(__dirname, "cache", `owner_video${ext}`);
+
+      await fs.ensureDir(path.join(__dirname, "cache"));
+      const file = fs.createWriteStream(cachePath);
+
+      https.get(videoUrl, (response) => {
+        response.pipe(file);
+        file.on("finish", () => {
+          file.close(() => {
+            const ping = Date.now() - start;
+
+            const infoText = `
+𝐎𝐖𝐍𝐄𝐑 𝐈𝐍𝐅𝐎 🥷
+━━━━━━━━━━━━━━━━
+𝐍𝐚𝐦𝐞: ${ownerInfo.name}
+𝐀𝐠𝐞: ${ownerInfo.age}
+𝐁𝐢𝐫𝐭𝐡𝐝𝐚𝐲: ${ownerInfo.birthday}
+𝐇𝐞𝐢𝐠𝐡𝐭: ${ownerInfo.height}
+𝐋𝐨𝐜𝐚𝐭𝐢𝐨𝐧: ${ownerInfo.location}
+𝐂𝐥𝐚𝐬𝐬: ${ownerInfo.class}
+𝐆𝐞𝐧𝐝𝐞𝐫: ${ownerInfo.gender}
+𝐁𝐢𝐨: ${ownerInfo.hobby}
+𝐑𝐞𝐥𝐚𝐭𝐢𝐨𝐧𝐬𝐡𝐢𝐩: ${ownerInfo.relationship}
+𝐃𝐫𝐞𝐚𝐦: ${ownerInfo.dream}
+𝐅𝐚𝐯 𝐀𝐧𝐢𝐦𝐞: ${ownerInfo.favAnime}
+𝐅𝐚𝐜𝐞𝐛𝐨𝐨𝐤: ${ownerInfo.facebook}
+
+𝐁𝐎𝐓 𝐈𝐍𝐅𝐎 
+━━━━━━━━━━━━━━━━
+𝐁𝐨𝐭 𝐍𝐚𝐦𝐞: ${ownerInfo.botname}
+𝐔𝐩𝐭𝐢𝐦𝐞: ${uptimeText}
+𝐏𝐢𝐧𝐠: ${ping} ms
+━━━━━━━━━━━━━━━━`;
+
+            return message.reply({
+              body: infoText,
+              attachment: fs.createReadStream(cachePath)
+            });
+          });
+        });
+      }).on("error", (err) => {
+        console.error("❌ Download error:", err.message);
+        return message.reply("❌ | ভিডিও লোড করতে সমস্যা হয়েছে।");
+      });
+
+    } catch (e) {
+      console.error("❌ Unexpected error:", e);
+      return message.reply("❌ | কিছু একটা সমস্যা হয়েছে।");
+    }
+  }
+};

@@ -1,14 +1,19 @@
 const axios = require("axios");
 
+const baseApiUrl = async () => {
+  const base = await axios.get(
+    "https://raw.githubusercontent.com/Blankid018/D1PT0/main/baseApiUrl.json",
+  );
+  return base.data.api;
+};
 
 module.exports.config = {
   name: "fbcover",
-  aliases:["fcp"],
   version: "6.9",
   role: 0,
   author: "Dipto",
   description: "Facebook cover",
-  category: "logo",
+  category: "tools",
   guide: {
     en: "name - title - address - email - phone - color (default = white)",
   },
@@ -50,8 +55,8 @@ module.exports.onStart = async function ({ api, event, args, usersData }) {
           api.unsendMessage(info.messageID);
         }, 4000),
     );
-    const hasan = "https://www.noobs-api.rf.gd/dipto";
-    const img = `${hasan}/cover/${v}?name=${encodeURIComponent(name)}&subname=${encodeURIComponent(subname)}&number=${encodeURIComponent(phone)}&address=${encodeURIComponent(address)}&email=${encodeURIComponent(email)}&colour=${encodeURIComponent(color)}&uid=${id}`;
+
+    const img = `${await baseApiUrl()}/cover/${v}?name=${encodeURIComponent(name)}&subname=${encodeURIComponent(subname)}&number=${encodeURIComponent(phone)}&address=${encodeURIComponent(address)}&email=${encodeURIComponent(email)}&colour=${encodeURIComponent(color)}&uid=${id}`;
 
     try {
       const response = await axios.get(img, { responseType: "stream" });

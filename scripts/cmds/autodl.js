@@ -1,41 +1,64 @@
 const axios = require("axios");
-
-const baseApiUrl = async () => {
-  const base = await axios.get(`https://raw.githubusercontent.com/KingsOfToxiciter/alldl/refs/heads/main/toxicitieslordhasan.json`);
-  return base.data.hasan;
-};
+const fs = require("fs");
+const path = require("path");
 
 module.exports = {
   config: {
-    name: "autolink",
-    version: "1.0",
-    author: "♡︎ 𝐻𝐴𝑆𝐴𝑁 ♡︎",
-    description: "Direct auto downloader",
+    name: "autodown",
+    aliases: ["autodl"],
+    version: "1.6.9",
+    author: "Nazrul",
+    role: 0,
+    description: "Auto-download media from any  platform",
     category: "media",
+    guide: { en: "Send any media link" }
   },
 
-  onStart: async function () {},
+  onStart: async function({}) {},
 
-  onChat: async function ({ api, event }) {
-    const url = event.body?.trim();
-    const supported = [
-      "https://www.tiktok.com", "https://www.facebook.com", "https://www.instagram.com", "https://youtu.be/", "https://youtube.com",
-      "https://x.com", "https://twitter.com", "https://pin.it/", "https://vm.tiktok.com", "https://fb.watch", "https://vt.tiktok.com",
-    ];
-
-    if (!supported.some(domain => url?.startsWith(domain))) return;
+  onChat: async function({ api, event }) {
+    const url = event.body?.match(/https?:\/\/[^\s]+/)?.[0];
+    if (!url) return;
 
     try {
-      const res = await axios.get(`${await baseApiUrl()}/alldl?url=${encodeURIComponent(url)}`);
-      const data = await global.utils.getStreamFromURL(res.data.url);
+      api.setMessageReaction("💅", event.messageID, () => {}, true);
+
+      const apiUrl = (await axios.get("https://raw.githubusercontent.com/nazrul4x/Noobs/main/Apis.json")).data.api;
+      const { data } = await axios.get(`${apiUrl}/nazrul/alldlxx?url=${encodeURIComponent(url)}`);
+      
+      if (!data.url) throw new Error(data.error || "No download link found");
+
+      const filePath = path.join(__dirname, `n_${Date.now()}.mp4`);
+      const writer = fs.createWriteStream(filePath);
+      const response = await axios({
+        url: data.url,
+        method: 'GET',
+        responseType: 'stream',
+        headers: {
+          'User-Agent': 'Mozilla/5.0',
+          'Accept': '*/*',
+          'Connection': 'keep-alive'
+        }
+      });
+
+      response.data.pipe(writer);
+
+      await new Promise((resolve, reject) => {
+        writer.on('finish', resolve);
+        writer.on('error', reject);
+      });
 
       await api.sendMessage({
-        body: "✨ | Here is your Download video..!!",
-        attachment: data
-      }, event.threadID, event.messageID);
+        body: `\n${data.t}\n🛠️ Platform: ${data.p}\n`,
+        attachment: fs.createReadStream(filePath)
+      }, event.threadID);
+
+      fs.unlink(filePath, () => {});
+      api.setMessageReaction("🪶", event.messageID, () => {}, true);
+
     } catch (e) {
-      console.error(e);
-      api.sendMessage("❌ | Download failed.\nerror: " + e.message, event.threadID, event.messageID);
+      api.setMessageReaction("❌", event.messageID, () => {}, true);
+      console.log(e.message);
     }
-  },
+  }
 };

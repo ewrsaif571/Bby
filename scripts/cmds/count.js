@@ -67,7 +67,7 @@ module.exports = {
 				const endMessage = getLang("endMessage");
 				for (const item of arraySort) {
 					if (item.count > 0)
-						msg += `\n${item.stt}. ☠︎︎${item.name}☠︎︎\n       ➥${item.count}`;
+						msg += `\n${item.stt}/ ${item.name}: ${item.count}`;
 				}
 
 				if ((msg + endMessage).length > 19999) {
@@ -79,7 +79,7 @@ module.exports = {
 					arraySort = splitPage.allPage[page - 1];
 					for (const item of arraySort) {
 						if (item.count > 0)
-							msg += `\n${item.stt}. ☠︎︎${item.name}☠︎︎\n       ➥${item.count}`;
+							msg += `\n${item.stt}/ ${item.name}: ${item.count}`;
 					}
 					msg += getLang("page", page, splitPage.totalPage)
 						+ `\n${getLang("reply")}`
@@ -126,7 +126,7 @@ module.exports = {
 		const arraySort = splitPage.allPage[page - 1];
 		for (const item of arraySort) {
 			if (item.count > 0)
-				msg += `\n${item.stt}. ☠︎︎${item.name}☠︎︎\n       ➥${item.count}`;
+				msg += `\n${item.stt}/ ${item.name}: ${item.count}`;
 		}
 		msg += getLang("page", page, splitPage.totalPage)
 			+ "\n" + getLang("reply")
