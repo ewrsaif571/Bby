@@ -32,7 +32,7 @@ module.exports = {
     let mention = Object.keys(event.mentions)
     let uid;
 
-  
+
 
     if(event.type == "message_reply"){
     uid = event.messageReply.senderID
@@ -48,7 +48,7 @@ let url = await usersData.getAvatarUrl(uid)
 let avt = await new DIG.Wanted().getImage(url)
 
 
- 
+
       const pathSave = `${__dirname}/tmp/wanted.png`;
   fs.writeFileSync(pathSave, Buffer.from(avt));
     let body = "NEPAL KO WANTED MANXE"

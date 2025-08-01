@@ -5,15 +5,15 @@ const { writeFileSync } = require("fs-extra");
 module.exports = {
 	config: {
 		name: "whitelistthread",
-		aliases: ["wlt", "wt"],
+		aliases: ["wlt"],
 		version: "1.5",
 		author: "NTKhang",
 		countDown: 5,
-		role: 2,
+		role: 0,
 		description: {
 			en: "Add, remove, edit whiteListThreadIds role"
 		},
-		category: "owner",
+		category: "admin",
 		guide: {
 			en: '   {pn} [add | -a | +] [<tid>...]: Add whiteListThreadIds role for the current thread or specified thread IDs'
 				+ '\n   {pn} [remove | -r | -] [<tid>...]: Remove whiteListThreadIds role from the current thread or specified thread IDs'
@@ -45,89 +45,96 @@ module.exports = {
 			case "-a":
 			case "+": {
 				let tids = args.slice(1).filter(arg => !isNaN(arg));
-				if (tids.length <= 0) {
-					tids.push(event.threadID);
-				}
-				const notAdminIds = [];
-				const authorIds = [];
+				if (tids.length <= 0) tids.push(event.threadID);
+
+				const notAdminIds = [], alreadyAdded = [];
 				for (const tid of tids) {
 					if (config.whiteListModeThread.whiteListThreadIds.includes(tid))
-						authorIds.push(tid);
+						alreadyAdded.push(tid);
 					else
 						notAdminIds.push(tid);
 				}
+
 				config.whiteListModeThread.whiteListThreadIds.push(...notAdminIds);
 				const getNames = await Promise.all(tids.map(async tid => {
-					const d = await api.getThreadInfo(tid) || {}
-	const threadName = d.threadName || "Not found";
-					return { tid, name: threadName };
+					const info = await api.getThreadInfo(tid) || {};
+					return { tid, name: info.threadName || "Not found" };
 				}));
+
 				writeFileSync(global.client.dirConfig, JSON.stringify(config, null, 2));
+
 				return message.reply(
-					(notAdminIds.length > 0 ? getLang("added", notAdminIds.length, getNames.filter(({ tid }) => notAdminIds.includes(tid)).map(({ tid, name }) => `├‣ 𝚃𝙷𝚁𝙴𝙰𝙳 𝙽𝙰𝙼𝙴: ${name}\n╰‣ 𝚃𝙷𝚁𝙴𝙰𝙳 𝙸𝙳: ${tid}`).join("\n")) : "")
-					+ (authorIds.length > 0 ? getLang("alreadyAdmin", authorIds.length, authorIds.map(tid => `╰‣ 𝚃𝙷𝚁𝙴𝙰𝙳 𝙸𝙳: ${tid}`).join("\n")) : "")
+					(notAdminIds.length > 0 ? getLang("added", notAdminIds.length,
+						getNames.filter(({ tid }) => notAdminIds.includes(tid))
+							.map(({ tid, name }) => `├‣ 𝚃𝙷𝚁𝙴𝙰𝙳 𝙽𝙰𝙼𝙴: ${name}\n╰‣ 𝚃𝙷𝚁𝙴𝙰𝙳 𝙸𝙳: ${tid}`).join("\n")) : "") +
+					(alreadyAdded.length > 0 ? getLang("alreadyAdmin", alreadyAdded.length,
+						alreadyAdded.map(tid => `╰‣ 𝚃𝙷𝚁𝙴𝙰𝙳 𝙸𝙳: ${tid}`).join("\n")) : "")
 				);
 			}
+
 			case "remove":
 			case "rm":
 			case "-r":
 			case "-": {
 				let tids = args.slice(1).filter(arg => !isNaN(arg));
-				if (tids.length <= 0) {
-					tids.push(event.threadID);
-				}
-				const notAdminIds = [];
-				const authorIds = [];
+				if (tids.length <= 0) tids.push(event.threadID);
+
+				const removed = [], notFound = [];
 				for (const tid of tids) {
 					if (config.whiteListModeThread.whiteListThreadIds.includes(tid))
-						authorIds.push(tid);
+						removed.push(tid);
 					else
-						notAdminIds.push(tid);
+						notFound.push(tid);
 				}
-				for (const tid of authorIds)
-					config.whiteListModeThread.whiteListThreadIds.splice(config.whiteListModeThread.whiteListThreadIds.indexOf(tid), 1);
-				const getNames = await Promise.all(authorIds.map(async tid => {
-					const d = await api.getThreadInfo(tid) || {}
-const threadName = d.threadName || "Not found";
-					return { tid, name: threadName };
+
+				for (const tid of removed)
+					config.whiteListModeThread.whiteListThreadIds.splice(
+						config.whiteListModeThread.whiteListThreadIds.indexOf(tid), 1);
+
+				const getNames = await Promise.all(removed.map(async tid => {
+					const info = await api.getThreadInfo(tid) || {};
+					return { tid, name: info.threadName || "Not found" };
 				}));
+
 				writeFileSync(global.client.dirConfig, JSON.stringify(config, null, 2));
+
 				return message.reply(
-					(authorIds.length > 0 ? getLang("removed", authorIds.length, getNames.map(({ tid, name }) => `├‣ 𝚃𝙷𝚁𝙴𝙰𝙳 𝙽𝙰𝙼𝙴: ${name}\n╰‣ 𝚃𝙷𝚁𝙴𝙰𝙳 𝙸𝙳: ${tid}`).join("\n")) : "")
-					+ (notAdminIds.length > 0 ? getLang("notAdmin", notAdminIds.length, notAdminIds.map(tid => `╰‣ 𝚃𝙷𝚁𝙴𝙰𝙳 𝙸𝙳: ${tid}`).join("\n")) : "")
+					(removed.length > 0 ? getLang("removed", removed.length,
+						getNames.map(({ tid, name }) => `├‣ 𝚃𝙷𝚁𝙴𝙰𝙳 𝙽𝙰𝙼𝙴: ${name}\n╰‣ 𝚃𝙷𝚁𝙴𝙰𝙳 𝙸𝙳: ${tid}`).join("\n")) : "") +
+					(notFound.length > 0 ? getLang("notAdmin", notFound.length,
+						notFound.map(tid => `╰‣ 𝚃𝙷𝚁𝙴𝙰𝙳 𝙸𝙳: ${tid}`).join("\n")) : "")
 				);
 			}
+
 			case "list":
 			case "-l": {
 				const getNames = await Promise.all(config.whiteListModeThread.whiteListThreadIds.map(async tid => {
-					const t = await api.getThreadInfo(tid) || {}
-	const threadName = t.threadName || "Unfetched";
-					return { tid, name: threadName };
+					const info = await api.getThreadInfo(tid) || {};
+					return { tid, name: info.threadName || "Unfetched" };
 				}));
-				return message.reply(getLang("listAdmin", getNames.map(({ tid, name }) => `├‣ 𝚃𝙷𝚁𝙴𝙰𝙳 𝙽𝙰𝙼𝙴: ${name}\n├‣ 𝚃𝙷𝚁𝙴𝙰𝙳 𝙸𝙳: ${tid}`).join("\n")));
+
+				return message.reply(getLang("listAdmin",
+					getNames.map(({ tid, name }) => `├‣ 𝚃𝙷𝚁𝙴𝙰𝙳 𝙽𝙰𝙼𝙴: ${name}\n├‣ 𝚃𝙷𝚁𝙴𝙰𝙳 𝙸𝙳: ${tid}`).join("\n")));
 			}
+
 			case "mode":
 			case "m":
 			case "-m": {
 				let isSetNoti = false;
-				let value;
-				let indexGetVal = 1;
-
-				if (args[1] == "noti") {
+				let index = 1;
+				if (args[1] === "noti") {
 					isSetNoti = true;
-					indexGetVal = 2;
+					index = 2;
 				}
 
-				if (args[indexGetVal] == "on")
-					value = true;
-				else if (args[indexGetVal] == "off")
-					value = false;
+				const value = args[index] === "on" ? true : args[index] === "off" ? false : null;
+				if (value === null)
+					return message.reply("⚠️ | Please specify 'on' or 'off'.");
 
 				if (isSetNoti) {
 					config.hideNotiMessage.whiteListModeThread = !value;
 					message.reply(getLang(value ? "turnedOnNoti" : "turnedOffNoti"));
-				}
-				else {
+				} else {
 					config.whiteListModeThread.enable = value;
 					message.reply(getLang(value ? "turnedOn" : "turnedOff"));
 				}
@@ -135,8 +142,9 @@ const threadName = d.threadName || "Not found";
 				writeFileSync(client.dirConfig, JSON.stringify(config, null, 2));
 				break;
 			}
+
 			default:
-				return message.reply(getLang("missingIdAdd"));
+				return message.reply(getLang("missingAdd"));
 		}
 	}
 };

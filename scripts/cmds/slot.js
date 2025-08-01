@@ -1,84 +1,111 @@
+const slotMemory = {}; // in-memory storage
+
 module.exports = {
   config: {
     name: "slot",
-    version: "3.0",
-    author: "♡︎ 𝐻𝐴𝑆𝐴𝑁 ♡︎",
-    shortDescription: { en: "Slot game" },
-    longDescription: { en: "Advanced Slot game with jackpot feature." },
-    category: "game",
+    version: "1.0",
+    author: "null",
+    countDown: 10,
+    shortDescription: { en: "slot game 🙂" },
+    longDescription: { en: "" },
+    category: "game"
   },
+
   langs: {
     en: {
-      invalid_amount: "Enter a valid and positive amount to have a chance to win more!",
-      not_enough_money: "Fokinni! Tui toh gorib, balance chack kor?! 😤",
-      spin_message: "Spinning...",
-      win_message: "💰!!𝗦𝗟𝗢𝗧 𝗥𝗘𝗦𝗨𝗟𝗧!!🎰"
-        + "\n        "
-        + "\n💥 𝑌𝑂𝑈 𝑊𝑂𝑁 𝑇𝐻𝐸 𝑆𝐿𝑂𝑇 🎊"
-        + "\n~💸𝑊𝑂𝑁 𝑀𝑂𝑁𝐸𝑌💸: $%1"
-        + "\n~𝐸𝑛𝑗𝑜𝑦💰!",
-      lose_message: "💰!!𝗦𝗟𝗢𝗧 𝗥𝗘𝗦𝗨𝗟𝗧!!🎰"
-        + "\n        "
-        + "\n🥲 𝑌𝑂𝑈 𝐿𝑂𝑆𝑇 𝑇𝐻𝐸 𝑆𝐿𝑂𝑇 😷"
-        + "\n~💸𝐿𝑂𝑆𝑇 𝑀𝑂𝑁𝐸𝑌💸: $%1"
-        + "\n~𝐴𝑙𝑎𝑠💰!",
-      jackpot_message: "💰 !!!𝗝𝗔𝗖𝗞𝗣𝗢𝗧!!! 🎰"
-        + "\n        "
-        + "\n💥 𝑌𝑂𝑈 𝑊𝑂𝑁 𝐽𝐴𝐶𝐾𝑃𝑂𝑇 🎊"
-        + "\n~💸𝑊𝑂𝑁 𝑀𝑂𝑁𝐸𝑌💸: $%1"
-        + "\n~𝑊𝑖𝑡ℎ 𝑓𝑜𝑢𝑟 %2 𝑠𝑦𝑚𝑏𝑙𝑒𝑠, 𝐸𝑛𝑗𝑜𝑦💰!",
+      invalid_amount: "𝗽𝗹𝗲𝗮𝘀𝗲 𝗶𝗻𝘁𝗲𝗿 𝘃𝗮𝗹𝗶𝗱 𝗮𝗺𝗼𝘂𝗻𝘁 😿💅",
+      not_enough_money: "𝗽𝗹𝗲𝗮𝘀𝗲 𝗰𝗵𝗲𝗰𝗸 𝘆𝗼𝘂𝗿 𝗯𝗮𝗹𝗮𝗻𝗰𝗲🤡",
+      too_much_bet: "𝗯𝗮𝗯𝘆 𝗺𝗮𝘅 𝗯𝗲𝘁 𝗶𝘀 𝟭𝟬𝗠 😿",
+      cooldown: "𝗕𝗮𝗯𝘆 𝘆𝗼𝘂 𝗵𝗮𝘃𝗲 𝗿𝗲𝗮𝗰𝗵𝗲𝗱 𝟮𝟬 𝗽𝗹𝗮𝘆𝘀. 𝗧𝗿𝘆 𝗮𝗴𝗮𝗶𝗻 𝗮𝗳𝘁𝗲𝗿 𝟭𝟮 𝗵𝗼𝘂𝗿𝘀 💅",
+      win_message: "•𝗯𝗮𝗯𝘆 𝘆𝗼𝘂 𝘄𝗼𝗻  $%1",
+      lose_message: "•𝗯𝗮𝗯𝘆 𝘆𝗼𝘂 𝗹𝗼𝘀𝘁 $%1",
+      jackpot_message: "»𝘆𝗼𝘂 𝘄𝗼𝗻 𝗝𝗮𝗰𝗸𝗽𝗼𝘁 $%1 𝘄𝗶𝘁𝗵 𝘁𝗵𝗿𝗲𝗲 %2",
     },
   },
 
   onStart: async function ({ args, message, event, usersData, getLang }) {
     const { senderID } = event;
-    const userData = await usersData.get(senderID);
     const amount = parseInt(args[0]);
+    const userData = await usersData.get(senderID);
+
+    const maxBet = 10_000_000;
+    const maxPlays = 20;
+    const cooldown = 12 * 60 * 60 * 1000;
+    const now = Date.now();
+
+    // in-memory usage tracking
+    if (!slotMemory[senderID]) {
+      slotMemory[senderID] = {
+        count: 0,
+        lastReset: now
+      };
+    }
+
+    const userSlot = slotMemory[senderID];
+
+    // reset after cooldown
+    if (now - userSlot.lastReset >= cooldown) {
+      userSlot.count = 0;
+      userSlot.lastReset = now;
+    }
+
+    if (userSlot.count >= maxPlays) {
+      return message.reply(getLang("cooldown"));
+    }
 
     if (isNaN(amount) || amount <= 0) {
       return message.reply(getLang("invalid_amount"));
     }
+
+    if (amount > maxBet) {
+      return message.reply(getLang("too_much_bet"));
+    }
+
     if (amount > userData.money) {
       return message.reply(getLang("not_enough_money"));
     }
 
-    const slots = ["🍓", "🍆", "🍎", "🍌", "🍍", "🥭", "🫐", "🍊", "🍋", "🍒", "🥞", "🍔"];
-    const slot1 = slots[Math.floor(Math.random() * slots.length)];
-    const slot2 = slots[Math.floor(Math.random() * slots.length)];
-    const slot3 = slots[Math.floor(Math.random() * slots.length)];
-    const slot4 = slots[Math.floor(Math.random() * slots.length)];
+    const slots = ["💚", "💛", "💙", "💜", "🤎"];
+    const results = [
+      slots[Math.floor(Math.random() * slots.length)],
+      slots[Math.floor(Math.random() * slots.length)],
+      slots[Math.floor(Math.random() * slots.length)]
+    ];
 
-    const winnings = calculateWinnings(slot1, slot2, slot3, slot4, amount);
-    await usersData.set(senderID, { money: userData.money + winnings });
+    const winnings = calculateWinnings(results, amount);
+    await usersData.set(senderID, {
+      money: userData.money + winnings,
+      data: userData.data
+    });
 
-    const messageText = getSpinResultMessage(slot1, slot2, slot3, slot4, winnings, getLang);
+    userSlot.count++;
+
+    const messageText = formatResult(results, winnings, getLang);
     return message.reply(messageText);
-  },
+  }
 };
 
-function calculateWinnings(slot1, slot2, slot3, slot4, betAmount) {
-  if (slot1 === slot2 && slot2 === slot3 && slot3 === slot4) {
-    if (slot1 === "🍆" || slot1 === "🍍") return betAmount * 20; // বড় Jackpot!
-    return betAmount * 10; // চারটি একই চিহ্ন হলে ১০x
-  } 
-  else if ((slot1 === slot2 && slot2 === slot3) || (slot2 === slot3 && slot3 === slot4)) {
-    return betAmount * 5; // তিনটি মিললে ৫x
-  } 
-  else if (slot1 === slot2 || slot1 === slot3 || slot1 === slot4 || slot2 === slot3 || slot2 === slot4 || slot3 === slot4) {
-    return betAmount * 3; // দুটি মিললে 3x pabe
-  } 
-  else {
-    return -betAmount * 1; // কিছু না মিললে বাজির 1 গুণ হারাবে
-  }
+function calculateWinnings([a, b, c], bet) {
+  if (a === b && b === c) return bet * 5;
+  if (a === b || a === c || b === c) return bet * 2;
+  return -bet;
 }
 
-function getSpinResultMessage(slot1, slot2, slot3, slot4, winnings, getLang) {
-  if (winnings > 0) {
-    if (slot1 === slot2 && slot2 === slot3 && slot3 === slot4) {
-      return getLang("jackpot_message", winnings, slot1);
-    }
-    return getLang("win_message", winnings) + `\n~𝐒𝐋𝐎𝐓'𝐒:\n[ ${slot1} | ${slot2} | ${slot3} | ${slot4} ]`;
-  } else {
-    return getLang("lose_message", -winnings) + `\n~𝐒𝐋𝐎𝐓'𝐒:\n[ ${slot1} | ${slot2} | ${slot3} | ${slot4} ]`;
+function formatResult([a, b, c], winnings, getLang) {
+  const slotDisplay = `🪶\n•𝗴𝗮𝗺𝗲 𝗿𝗲𝘀𝘂𝗹𝘁 [ ${a} | ${b} | ${c} ]`;
+  const formattedWinnings = formatMoney(Math.abs(winnings));
+  if (a === b && b === c) {
+    return `${getLang("jackpot_message", formattedWinnings, a)}\n${slotDisplay}`;
   }
-           }
+  return `${winnings > 0
+    ? getLang("win_message", formattedWinnings)
+    : getLang("lose_message", formattedWinnings)}\n${slotDisplay}`;
+}
+
+function formatMoney(amount) {
+  if (amount >= 1e12) return (amount / 1e12).toFixed(2) + "𝗧";
+  if (amount >= 1e9) return (amount / 1e9).toFixed(2) + "𝗕";
+  if (amount >= 1e6) return (amount / 1e6).toFixed(2) + "𝗠";
+  if (amount >= 1e3) return (amount / 1e3).toFixed(2) + "𝗞";
+  return amount.toString();
+}

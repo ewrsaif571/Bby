@@ -1,5 +1,4 @@
 const { getTime } = global.utils;
-const { config } = global.GoatBot;
 
 module.exports = {
 	config: {
@@ -9,11 +8,17 @@ module.exports = {
 		countDown: 5,
 		role: 2,
 		description: {
+			vi: "Quản lý người dùng trong hệ thống bot",
 			en: "Manage users in bot system"
 		},
 		category: "owner",
 		guide: {
-		        en: "   {pn} [find | -f | search | -s] <name to find>: search for users in bot data by name"
+			vi: "   {pn} [find | -f | search | -s] <tên cần tìm>: tìm kiếm người dùng trong dữ liệu bot bằng tên"
+				+ "\n"
+				+ "\n   {pn} [ban | -b] [<uid> | @tag | reply tin nhắn] <reason>: để cấm người dùng mang id <uid> hoặc người được tag hoặc người gửi của tin nhắn được reply sử dụng bot"
+				+ "\n"
+				+ "\n   {pn} unban [<uid> | @tag | reply tin nhắn]: để bỏ cấm người dùng sử dụng bot",
+			en: "   {pn} [find | -f | search | -s] <name to find>: search for users in bot data by name"
 				+ "\n"
 				+ "\n   {pn} [ban | -b] [<uid> | @tag | reply message] <reason>: to ban user with id <uid> or tagged user or sender of message replied using bot"
 				+ "\n"
@@ -22,6 +27,17 @@ module.exports = {
 	},
 
 	langs: {
+		vi: {
+			noUserFound: "❌ Không tìm thấy người dùng nào có tên khớp với từ khóa: \"%1\" trong dữ liệu của bot",
+			userFound: "🔎 Tìm thấy %1 người dùng có tên trùng với từ khóa \"%2\" trong dữ liệu của bot:\n%3",
+			uidRequired: "Uid của người cần ban không được để trống, vui lòng nhập uid hoặc tag hoặc reply tin nhắn của 1 người theo cú pháp user ban <uid> <lý do>",
+			reasonRequired: "Lý do ban người dùng không được để trống, vui lòng nhập uid hoặc tag hoặc reply tin nhắn của 1 người theo cú pháp user ban <uid> <lý do>",
+			userHasBanned: "Người dùng mang id [%1 | %2] đã bị cấm từ trước:\n» Lý do: %3\n» Thời gian: %4",
+			userBanned: "Đã cấm người dùng mang id [%1 | %2] sử dụng bot.\n» Lý do: %3\n» Thời gian: %4",
+			uidRequiredUnban: "Uid của người cần unban không được để trống",
+			userNotBanned: "Hiện tại người dùng mang id [%1 | %2] không bị cấm sử dụng bot",
+			userUnbanned: "Đã bỏ cấm người dùng mang id [%1 | %2], hiện tại người này có thể sử dụng bot"
+		},
 		en: {
 			noUserFound: "❌ No user found with name matching keyword: \"%1\" in bot data",
 			userFound: "🔎 Found %1 user with name matching keyword \"%2\" in bot data:\n%3",
@@ -31,15 +47,12 @@ module.exports = {
 			userBanned: "User with id [%1 | %2] has been banned:\n» Reason: %3\n» Date: %4",
 			uidRequiredUnban: "Uid of user to unban cannot be empty",
 			userNotBanned: "User with id [%1 | %2] is not banned",
-			userUnbanned: "User with id [%1 | %2] has been unbanned",
-			enable: "⚠️ | Banned user notification turned on",
-			disable: "⚠️ | Banned user notification turned off"
+			userUnbanned: "User with id [%1 | %2] has been unbanned"
 		}
 	},
 
 	onStart: async function ({ args, usersData, message, event, prefix, getLang }) {
 		const type = args[0];
-		const { writeFileSync } = require("fs-extra");
 		switch (type) {
 			// find user
 			case "find":
@@ -95,20 +108,6 @@ module.exports = {
 				message.reply(getLang("userBanned", uid, name, reason, time));
 				break;
 			}
-
-			case "noti": {
-				if (args[1] === "on") {              
-                                config.hideNotiMessage.userBanned = false;
-                                writeFileSync(global.client.dirConfig, JSON.stringify(config, null, 2));
-                                return message.reply(getLang("enable"))
-            };
-                                if (args[1] === "off") {
-                                config.hideNotiMessage.userBanned = true;
-                                writeFileSync(global.client.dirConfig, JSON.stringify(config, null, 2));
-                                return message.reply(getLang("disable"))
-	    };
-				break;
-}
 			// unban user
 			case "unban":
 			case "-u": {
