@@ -26,7 +26,7 @@ module.exports = {
     const permission = global.GoatBot.config.owner;
     if (!permission.includes(event.senderID)) {
       api.sendMessage(
-        "~Who are you bby tumar ki lojjah sorom nai ?!🐐🤌",
+        "Eh?",
         event.threadID,
         event.messageID
       );
