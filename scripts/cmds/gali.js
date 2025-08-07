@@ -98,8 +98,8 @@ module.exports = {
     if (!uids) {
       return api.sendMessage("please mention someone or reply to a message you want to insults", event.threadID);
     }
-    if (uids === "100068909067279") {
-      return message.reply("kids?! this is my owner 👀🙌")
+    if (uids === "61572403596870", "61575078196263", "61576471072700") {
+      return message.reply("Huh?")
     };
     // **Get the mentioned user's name**
     const name = event.mentions[uids];
