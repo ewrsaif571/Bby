@@ -30,7 +30,7 @@ module.exports = {
         countDown: 5,
         role: 0,
         description: "𝗚𝗲𝘁 𝗚𝗿𝗼𝘂𝗽 𝗜𝗺𝗮𝗴𝗲",
-        category: "𝗜𝗠𝗔𝗚𝗘",
+        category: "image",
         guide: "{pn} --color [color] --bgcolor [color] --admincolor [color] --membercolor [color]",
     },
 
@@ -93,9 +93,9 @@ module.exports = {
             };
 
             if (data2) {
-                var waitingMsg = await api.sendMessage("⏳ |𝑲𝒐𝒓𝒕𝒆𝒄𝒉𝒊𝒕𝒐 𝒃𝒃𝒚 𝒆𝒌𝒕𝒖 𝒘𝒂𝒊𝒕 𝒌𝒐𝒓𝒐 😷😙.",event.threadID);
+                var waitingMsg = await api.sendMessage("𝗪𝗮𝗶𝘁 𝗸𝗼𝗿𝗼 𝗯𝗯𝘆😽🪶",event.threadID);
                 api.setMessageReaction(
-                    "⏳",
+                    "🤠",
                     event.messageID,
                     (err) => {},
                     true,
@@ -109,13 +109,13 @@ module.exports = {
 
 
                 api.setMessageReaction(
-                    "✅",
+                    "🚬",
                     event.messageID,
                     (err) => {},
                     true);
                 message.unsend(waitingMsg.messageID);
                 message.reply({
-                    body: `𝑯𝒆𝒓𝒆 𝒊𝒔 𝒚𝒐𝒖𝒓 𝒈𝒓𝒐𝒖𝒑 𝒊𝒎𝒂𝒈𝒆 𝒃𝒃𝒚 <😘`,
+                    body: ``,
                     attachment: data,
                 });
 
