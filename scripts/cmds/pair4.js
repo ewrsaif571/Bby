@@ -7,7 +7,7 @@ module.exports = {
 		name: "pair4",
 		countDown: 5,
 		role: 0,
-		category: "fun",
+		category: "love",
 		shortDescription: {
 			en: "",
 		},
