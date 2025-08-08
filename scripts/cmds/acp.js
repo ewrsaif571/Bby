@@ -7,7 +7,7 @@ module.exports = {
     version: "1.0",
     author: "Loid Butter",
     countDown: 8,
-    role: 2,
+    role: 0,
     shortDescription: "accept users",
     longDescription: "accept users",
     category: "admin",
@@ -18,7 +18,7 @@ module.exports = {
     if (author !== event.senderID) return;
     const args = event.body.replace(/ +/g, " ").toLowerCase().split(" ");
 
-    clearTimeout(Reply.unsendTimeout); // Clear the timeout if the user responds within the countdown duration
+    clearTimeout(Reply.unsendTimeout);
 
     const form = {
       av: api.getCurrentUserID(),
@@ -46,7 +46,7 @@ module.exports = {
       form.doc_id = "4108254489275063";
     }
     else {
-      return api.sendMessage("Please select <add | del > <target number | or \"all\">", event.threadID, event.messageID);
+      return api.sendMessage("𝐏𝐥𝐞𝐚𝐬𝐞 𝐮𝐬𝐞: [𝐚𝐝𝐝 | 𝐝𝐞𝐥] [𝐧𝐮𝐦𝐛𝐞𝐫 𝐨𝐫 𝐚𝐥𝐥]", event.threadID, event.messageID);
     }
 
     let targetIDs = args.slice(1);
@@ -63,7 +63,7 @@ module.exports = {
     for (const stt of targetIDs) {
       const u = listRequest[parseInt(stt) - 1];
       if (!u) {
-        failed.push(`Can't find stt ${stt} in the list`);
+        failed.push(`𝐂𝐚𝐧'𝐭 𝐟𝐢𝐧𝐝 𝐍𝐨. ${stt}`);
         continue;
       }
       form.variables.input.friend_requester_id = u.node.id;
@@ -90,13 +90,13 @@ module.exports = {
     }
 
     if (success.length > 0) {
-      api.sendMessage(`» The ${args[0] === 'add' ? 'friend request' : 'friend request deletion'} has been processed for ${success.length} people:\n\n${success.join("\n")}${failed.length > 0 ? `\n» The following ${failed.length} people encountered errors: ${failed.join("\n")}` : ""}`, event.threadID, event.messageID);
+      api.sendMessage(`𝐑𝐞𝐪𝐮𝐞𝐬𝐭 𝐭𝐲𝐩𝐞: ${args[0] === 'add' ? '𝐀𝐜𝐜𝐞𝐩𝐭' : '𝐃𝐞𝐥𝐞𝐭𝐞'}\n\n🪶 𝐒𝐮𝐜𝐜𝐞𝐬𝐬 [${success.length}]:\n${success.join("\n")}${failed.length > 0 ? `\n\n❌ 𝐅𝐚𝐢𝐥𝐞𝐝 [${failed.length}]:\n${failed.join("\n")}` : ""}`, event.threadID, event.messageID);
     } else {
-      api.unsendMessage(messageID); // Unsend the message if the response is incorrect
-      return api.sendMessage("Invalid response. Please provide a valid response.", event.threadID);
+      api.unsendMessage(messageID);
+      return api.sendMessage("❌ 𝐈𝐧𝐯𝐚𝐥𝐢𝐝 𝐫𝐞𝐬𝐩𝐨𝐧𝐬𝐞. 𝐓𝐫𝐲 𝐚𝐠𝐚𝐢𝐧.", event.threadID);
     }
 
-    api.unsendMessage(messageID); // Unsend the message after it has been processed
+    api.unsendMessage(messageID);
   },
 
   onStart: async function ({ event, api, commandName }) {
@@ -107,25 +107,30 @@ module.exports = {
       doc_id: "4499164963466303",
       variables: JSON.stringify({ input: { scale: 3 } })
     };
+
     const listRequest = JSON.parse(await api.httpPost("https://www.facebook.com/api/graphql/", form)).data.viewer.friending_possibilities.edges;
+
     let msg = "";
     let i = 0;
+
     for (const user of listRequest) {
       i++;
-      msg += (`\n${i}.♡︎𝑁𝐴𝑀𝐸♡︎: ${user.node.name}`
-        + `\n     ➥𝐼𝐷: ${user.node.id}`
-        + `\n𝑇𝐼𝑀𝐸: ${moment(user.time * 1009).tz("Asia/Manila").format("DD/MM/YYYY HH:mm:ss")}\n`);
+      msg += `\n${i}. 𝐍𝐀𝐌𝐄: ${user.node.name}`
+        + `\n   ➥ 𝐈𝐃: ${user.node.id}`
+        + `\n   𝐓𝐈𝐌𝐄: ${moment(user.time * 1009).tz("Asia/Manila").format("DD/MM/YYYY HH:mm:ss")}\n`;
     }
-    api.sendMessage(`${msg}\n\n𝑅𝑒𝑝𝑙𝑦 𝑡𝑜 𝑡ℎ𝑖𝑠 𝑚𝑎𝑠𝑠𝑎𝑔𝑒 𝑤𝑖𝑡ℎ 𝑡ℎ𝑒 𝑐𝑜𝑛𝑡𝑒𝑛𝑡: [𝑎𝑑𝑑 | del] [𝑁𝑢𝑚𝑏𝑒𝑟 𝑜𝑓 𝑙𝑖𝑠𝑡 𝑜𝑟 𝑎𝑙𝑙] 𝑇𝑜 𝑡𝑎𝑘𝑒 𝑎𝑐𝑡𝑖𝑜𝑛`, event.threadID, (e, info) => {
+
+    api.sendMessage(`𝐏𝐞𝐧𝐝𝐢𝐧𝐠 𝐅𝐫𝐢𝐞𝐧𝐝 𝐑𝐞𝐪𝐮𝐞𝐬𝐭𝐬:\n${msg}\n\n✨ 𝐑𝐞𝐩𝐥𝐲 𝐰𝐢𝐭𝐡: [𝐚𝐝𝐝 | 𝐝𝐞𝐥] [𝐧𝐮𝐦𝐛𝐞𝐫/𝐚𝐥𝐥] 𝐭𝐨 𝐭𝐚𝐤𝐞 𝐚𝐜𝐭𝐢𝐨𝐧.`, event.threadID, (e, info) => {
       global.GoatBot.onReply.set(info.messageID, {
         commandName,
         messageID: info.messageID,
         listRequest,
         author: event.senderID,
         unsendTimeout: setTimeout(() => {
-          api.unsendMessage(info.messageID); // Unsend the message after the countdown duration
-        }, this.config.countDown * 20000) // Convert countdown duration to milliseconds
+          api.unsendMessage(info.messageID);
+        }, this.config.countDown * 20000)
       });
     }, event.messageID);
   }
 };
+        
