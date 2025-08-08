@@ -5,19 +5,19 @@ const path = require("path");
 module.exports = {
   config: {
     name: "wifey",
-    aliases: ["hot"],
+    aliases: "",
     author: "Kshitiz",
     version: "1.0",
     cooldowns: 10,
     role: 0,
     shortDescription: "Get random wifey ",
     longDescription: "Get random wifey video",
-    category: "fun",
+    category: "media",
     guide: "{p}wifey",
   },
 
   onStart: async function ({ api, event, args, message }) {
-    api.setMessageReaction("🕐", event.messageID, (err) => {}, true);
+    api.setMessageReaction("👅", event.messageID, (err) => {}, true);
 
     try {
       const response = await axios.get(`https://wifey-evzk.onrender.com/kshitiz`, { responseType: "stream" });
@@ -35,7 +35,7 @@ module.exports = {
           attachment: stream,
         });
 
-        api.setMessageReaction("✅", event.messageID, (err) => {}, true);
+        api.setMessageReaction("✨", event.messageID, (err) => {}, true);
       });
     } catch (error) {
       console.error(error);
