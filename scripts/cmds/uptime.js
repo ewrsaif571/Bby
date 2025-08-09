@@ -53,8 +53,9 @@ module.exports = {
       const sysSeconds = Math.floor(sysUptime % 60);
 
       const msg =
-`${face}
+`
   𝐁𝐎𝐓 𝐔𝐏𝐓𝐈𝐌𝐄 🌠
+  ${face}
 ━━━━━━━━━━━━━━━
  • 𝐑𝐮𝐧𝐭𝐢𝐦𝐞: ${days}𝐝 ${hours}𝐡 ${minutes}𝐦 ${seconds}𝐬
  • 𝐒𝐲𝐬𝐭𝐞𝐦: ${sysDays}𝐝 ${sysHours}𝐡 ${sysMinutes}𝐦 ${sysSeconds}𝐬
@@ -63,7 +64,7 @@ module.exports = {
  • 𝐔𝐬𝐞𝐫𝐬: ${allUsers.length.toLocaleString()}
  • 𝐆𝐫𝐨𝐮𝐩𝐬: ${allThreads.length.toLocaleString()}
  • 𝐏𝐢𝐧𝐠: ${ping} 𝐦𝐬
-「𝗔𝗱𝗺𝗶𝗻:𝐒𝐚'!𝐅」
+「 𝗔𝗱𝗺𝗶𝗻:𝐒𝐚'!𝐅 」
 ━━━━━━━━━━━━ `;
   
       api.sendMessage(msg, event.threadID, event.messageID);
