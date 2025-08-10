@@ -15,9 +15,9 @@ module.exports = {
   },
 
   onStart: async function ({ message, args, api, event }) {
-    const permission = ["61577934170849" "61572403596870""61576471072700",];
+    const permission = ["61577934170849", "61572403596870", "61576471072700"];
     if (!permission.includes(event.senderID)) {
-      return api.sendMessage("🙂💢", event.threadID, event.messageID);
+      return api.sendMessage("🙂🖕", event.threadID, event.messageID);
     }
 
     const fileName = args[0];
@@ -34,4 +34,3 @@ module.exports = {
     api.sendMessage({ body: fileContent }, event.threadID);
   }
 };
-	
